@@ -1,18 +1,28 @@
+import fs from 'fs'
 import test from 'ava'
 
-import { sum, RSQLite } from '../index.js'
+import { RSQLite } from '../index.js'
 
-test('open sqlite', (t) => {
-    let sqlite = new RSQLite()
-    sqlite.open("./test.db")
+const dbPath = './__test__.db'
+async function openSQLite() {
+    const sqlite = new RSQLite()
+    await sqlite.open(dbPath)
+    return sqlite;
+}
+
+test.serial('open sqlite', async (t) => {
+    try {
+        fs.unlinkSync(dbPath)
+    } catch (e) {}
+    
+    await openSQLite()
     t.pass()
 })
 
-test('create table', (t) => {
-    let sqlite = new RSQLite()
-    sqlite.open("./test.db")
-    sqlite.exec(`DROP TABLE IF EXISTS "person";`)
-    sqlite.exec(`
+test.serial('create table', async (t) => {
+    const sqlite = await openSQLite()
+    await sqlite.exec(`DROP TABLE IF EXISTS "person";`)
+    await sqlite.exec(`
     CREATE TABLE "person" (
         "id" INTEGER,
         "name" TEXT NOT NULL,
@@ -23,23 +33,23 @@ test('create table', (t) => {
     t.pass()
 })
 
-test('insert data', (t) => {
-    let sqlite = new RSQLite()
-    sqlite.open("./test.db")
-    sqlite.exec(`
+test.serial('insert data', async (t) => {
+    const sqlite = await openSQLite()
+    let effectRows = await sqlite.exec(`
     INSERT INTO person (name, age) VALUES ('zhangsan', 5);
     `)
-    sqlite.exec(`
+    t.is(effectRows, 1)
+
+    effectRows = await sqlite.exec(`
     INSERT INTO person (name, age) VALUES ('lisi', 6);
     `)
-    t.pass()
+    t.is(effectRows, 1)
 })
 
-test('query data', (t) => {
-    let sqlite = new RSQLite()
-    sqlite.open("./test.db")
-    const res = sqlite.query(`select * from person`)
-    const json = JSON.parse(res)
-    console.log("查询结果：", json)
-    t.is(json.length, 2)
+test.serial('query data', async (t) => {
+    const sqlite = await openSQLite()
+    const res = await sqlite.query(`select * from person`)
+    t.is(res.length, 2)
 })
+
+
