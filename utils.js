@@ -1,7 +1,21 @@
+/** 操作符 */
+const Op = {
+    eq: '$eq',
+    ne: '$ne',
+    gt: '$gt',
+    lt: '$lt',
+    gte: '$gte',
+    lte: '$lte',
+    is: '$is',
+    between: '$between',
+    in: '$in',
+    or: '$or',
+    and: '$and',
+}
 
 function processWhereCondition(whereOptions) {
     const conditionList = []
-    const opList = Object.values(sqlite.Op)
+    const opList = Object.values(Op)
     Object.keys(whereOptions).map(key => {
         let condition;
         if (opList.includes(key)) {
@@ -111,6 +125,7 @@ function genOpStr(op, key, value) {
 }
 
 module.exports = {
+    Op,
     processWhereCondition,
     genConditionStr,
     genOpStr

@@ -1,20 +1,5 @@
 const { RSQLite } = require('./rsqlite')
-const { genConditionStr } = require('./utils')
-
-/** 操作符 */
-const Op = {
-    eq: '$eq',
-    ne: '$ne',
-    gt: '$gt',
-    lt: '$lt',
-    gte: '$gte',
-    lte: '$lte',
-    is: '$is',
-    between: '$between',
-    in: '$in',
-    or: '$or',
-    and: '$and',
-}
+const { genConditionStr, Op } = require('./utils')
 
 class SQLite {
     constructor() {
