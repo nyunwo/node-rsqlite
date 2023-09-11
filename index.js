@@ -123,7 +123,8 @@ class SQLite {
     async create(tableName, data = {}) {
         const cols = Object.keys(data)
         const values = Object.values(data)
-        const targetValues = values.map(item => {
+        const targetValues = cols.map(key => {
+            const item = data[key]
             if (typeof item == 'string') {
                 return `'${item.replace(/'/g, "''")}'`
             } else if (item instanceof Date) {
@@ -148,12 +149,12 @@ class SQLite {
         if(dataList.length == 0){
             return
         }
-        let targetSQL = ''
+        const cols = Object.keys(dataList[0])
+        let targetSQL = `INSERT INTO ${tableName}(${cols.join(', ')}) values `
         for (let i = 0; i < dataList.length; i++) {
             const data = dataList[i]
-            const cols = Object.keys(data)
-            const values = Object.values(data)
-            const targetValues = values.map(item => {
+            const targetValues = cols.map(key => {
+                const item = data[key]
                 if (typeof item == 'string') {
                     return `'${item.replace(/'/g, "''")}'`
                 } else if (item instanceof Date) {
@@ -164,9 +165,16 @@ class SQLite {
                     return item
                 }
             })
-            const sql = `INSERT INTO ${tableName}(${cols.join(', ')}) values(${targetValues.join(', ')});`
+            
+            let sql = ''
+            if (i != 0) {
+                sql += ', '
+            }
+            sql += `(${targetValues.join(', ')})`
             targetSQL += sql
         }
+        targetSQL += ';'
+   
         return await this.exec(targetSQL)
     }
 
